@@ -1365,5 +1365,4 @@ RunService.RenderStepped:Connect(function()
     if humanoid.WalkSpeed ~= speed then
         humanoid.WalkSpeed = speed
     end
-
 end)
