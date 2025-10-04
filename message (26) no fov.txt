@@ -45,7 +45,7 @@ getgenv().Mooze = {
         FOV = {
             Enabled = false, 
             Size = {
-                X = 100 
+                X = 30 
             },
             ["Weapons Configuration"] = {
                 Enabled = false, 
@@ -1367,3 +1367,4 @@ RunService.RenderStepped:Connect(function()
     end
 
 end)
+
