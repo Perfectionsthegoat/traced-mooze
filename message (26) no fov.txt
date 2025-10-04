@@ -40,7 +40,7 @@ getgenv().Mooze = {
         Snappiness = 1
     },
     ["Silent Aimbot"] = {
-        Enabled = true, 
+        Enabled = false, 
         ["Hit Part"] = "Closest Point", -- Target part ("Head" or "Closest Point")
         FOV = {
             Enabled = false, 
@@ -1367,4 +1367,5 @@ RunService.RenderStepped:Connect(function()
     end
 
 end)
+
 
