@@ -43,7 +43,7 @@ getgenv().Mooze = {
         Enabled = true, 
         ["Hit Part"] = "Closest Point", -- Target part ("Head" or "Closest Point")
         FOV = {
-            Enabled = true, 
+            Enabled = false, 
             Size = {
                 X = 100 
             },
@@ -1365,4 +1365,5 @@ RunService.RenderStepped:Connect(function()
     if humanoid.WalkSpeed ~= speed then
         humanoid.WalkSpeed = speed
     end
+
 end)
