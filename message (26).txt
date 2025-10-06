@@ -80,7 +80,7 @@ getgenv().Mooze = {
     },
     ["Movement Modifications"] = {
         ["Slowdown Modifications"] = {
-            Enabled = true, 
+            Enabled = false, 
             Weapons = {
                 ["M4A1"] = {
                     Multiplier = 0.1 
@@ -97,7 +97,7 @@ getgenv().Mooze = {
             }
         },
         ["Speed Modifications"] = {
-            Enabled = true, 
+            Enabled = false, 
             Normal = {
                 Multiplier = 150 
             },
