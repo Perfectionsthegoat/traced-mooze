@@ -139,7 +139,7 @@ getgenv().Mooze = {
         Keybind = "C"
     },
     ["Trigger Bot"] = {
-        Enabled = true,
+        Enabled = false,
         Activation = {
             ["Activation Bind"] = "V"
         },
@@ -347,6 +347,7 @@ local accessGranted = false
 local configSelected = false
 local selectedConfig = nil
 local otherThingLoaded = false
+local isMobileMode = false
 
 spawn(function()
     wait(1)
@@ -469,13 +470,23 @@ MobileButton.Name = "MobileButton"
 MobileButton.Parent = ScreenGui
 MobileButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 MobileButton.BorderSizePixel = 0
-MobileButton.Position = UDim2.new(0.5, 320, 0.5, -150)
 MobileButton.Size = UDim2.new(0, 140, 0, 50)
 MobileButton.Font = Enum.Font.SourceSansBold
 MobileButton.Text = "Mobile Mode"
 MobileButton.TextColor3 = Color3.fromRGB(255, 255, 255)
 MobileButton.TextSize = 14
 MobileButton.AutoButtonColor = false
+
+-- Position mobile button to the right of the frame
+local function updateMobileButtonPosition()
+    local framePos = Frame.AbsolutePosition
+    local frameSize = Frame.AbsoluteSize
+    MobileButton.Position = UDim2.new(0, framePos.X + frameSize.X + 10, 0, framePos.Y)
+end
+
+-- Update position initially and when frame moves
+updateMobileButtonPosition()
+Frame:GetPropertyChangedSignal("AbsolutePosition"):Connect(updateMobileButtonPosition)
 
 local dragging = false
 local dragInput, dragStart, startPos
@@ -602,6 +613,8 @@ local function proceedToExecutorInfo()
 end
 
 MobileButton.MouseButton1Click:Connect(function()
+    isMobileMode = true
+    print("[Mooze] Mobile Mode button clicked - isMobileMode set to TRUE")
     proceedToExecutorInfo()
 end)
 
@@ -622,6 +635,8 @@ UserInputService.InputBegan:Connect(function(input, gameProcessed)
             Humanoid.WalkSpeed = originalWalkSpeed
             Humanoid.JumpPower = originalJumpPower
             if typedKey == correctKey then
+                isMobileMode = false
+                print("[Mooze] PC Mode (typed key) - isMobileMode set to FALSE")
                 proceedToExecutorInfo()
             else
                 player:Kick("Invalid Key")
@@ -1048,6 +1063,46 @@ if not getgenv().Mooze or not getgenv().Mooze["Global"] or not getgenv().Mooze["
     return
 end
 
+print("[Mooze] Mobile Mode:", isMobileMode)
+
+-- ============================================
+-- MOBILE LOCK BUTTON (ONLY FOR MOBILE MODE)
+-- ============================================
+
+local isLocked = false
+local lockedTarget = nil
+local LockButton = nil
+
+if isMobileMode then
+    local LockScreenGui = Instance.new("ScreenGui")
+    LockScreenGui.Name = "MoozeLockGui"
+    LockScreenGui.Parent = game.CoreGui
+    LockScreenGui.ResetOnSpawn = false
+
+    LockButton = Instance.new("TextButton")
+    LockButton.Name = "MobileLockButton"
+    LockButton.Parent = LockScreenGui
+    LockButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+    LockButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+    LockButton.BorderSizePixel = 2
+    LockButton.Position = UDim2.new(0, 10, 0, 60)
+    LockButton.Size = UDim2.new(0, 80, 0, 40)
+    LockButton.Font = Enum.Font.SourceSansBold
+    LockButton.Text = "LOCK"
+    LockButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+    LockButton.TextSize = 16
+    LockButton.AutoButtonColor = false
+    LockButton.ZIndex = 10
+
+    local LockCorner = Instance.new("UICorner")
+    LockCorner.CornerRadius = UDim.new(0, 8)
+    LockCorner.Parent = LockButton
+
+    print("[Mooze] Mobile lock button created and visible!")
+else
+    print("[Mooze] PC mode - no lock button (use C key)")
+end
+
 -- ============================================
 -- OPTIMIZED TARGET SCANNING SYSTEM
 -- ============================================
@@ -1108,6 +1163,7 @@ Circle.Position = Vector2.new(Camera.ViewportSize.X/2, Camera.ViewportSize.Y/2)
 
 local lastTriggerScan = 0
 local triggerScanInterval = 0.05
+local LastActivationTime = 0
 
 local function GetPlayerInCircle()
     local closestDist = math.huge
@@ -1189,7 +1245,7 @@ RunService.Heartbeat:Connect(function(dt)
                     end
                 end
                 
-                if allowed and tick() - (LastActivationTime or 0) >= triggerConfig["Click Cooldown"] then
+                if allowed and tick() - LastActivationTime >= triggerConfig["Click Cooldown"] then
                     tool:Activate()
                     tool:Deactivate()
                     LastActivationTime = tick()
@@ -1200,87 +1256,217 @@ RunService.Heartbeat:Connect(function(dt)
 end)
 
 -- ============================================
--- CAMERA AIMBOT (OPTIMIZED)
+-- CAMERA AIMBOT (OPTIMIZED WITH MOBILE LOCK)
 -- ============================================
 
 do
     local cameraAimbotConfig = getgenv().Mooze["Camera Aimbot"]
     local globalKeybind = getgenv().Mooze["Global"]["Keybind"] or "E"
     cameraAimbotConfig["Keybind"] = globalKeybind
+    cameraAimbotConfig["Snappiness"] = 1
+    cameraAimbotConfig["Prediction"]["X"] = 0
+    cameraAimbotConfig["Prediction"]["Y"] = 0
+    cameraAimbotConfig["Prediction"]["Z"] = 0
     
     local currentCamera = workspace.CurrentCamera
     local aimbotKey = Enum.KeyCode[cameraAimbotConfig["Keybind"]:upper()]
     
+    local function isKnocked(character)
+        if not character then return false end
+        
+        local bodyEffects = character:FindFirstChild("BodyEffects")
+        if bodyEffects then
+            local ko = bodyEffects:FindFirstChild("K.O")
+            if ko and ko.Value == true then
+                return true
+            end
+        end
+        
+        local humanoid = character:FindFirstChildOfClass("Humanoid")
+        if humanoid then
+            local state = humanoid:GetState()
+            if state == Enum.HumanoidStateType.Dead or 
+               state == Enum.HumanoidStateType.Physics or
+               state == Enum.HumanoidStateType.Ragdoll then
+                return true
+            end
+        end
+        
+        local rootPart = character:FindFirstChild("HumanoidRootPart")
+        if rootPart then
+            local grabbed = rootPart:FindFirstChild("GRABBING_CONSTRAINT")
+            if grabbed then
+                return true
+            end
+        end
+        
+        return false
+    end
+    
     local function getTarget()
+        -- STICKY LOCK: If locked, ONLY return the locked target, never search for new ones
+        if isLocked and lockedTarget then
+            if lockedTarget.Parent and lockedTarget.Parent:FindFirstChild("Humanoid") then
+                local humanoid = lockedTarget.Parent:FindFirstChild("Humanoid")
+                local character = lockedTarget.Parent
+                
+                -- Check if target is still alive and not knocked
+                if humanoid and humanoid.Health > 0 and not isKnocked(character) then
+                    return lockedTarget
+                end
+            end
+            
+            -- Target died or got knocked - UNLOCK COMPLETELY, DO NOT SWITCH
+            isLocked = false
+            lockedTarget = nil
+            if LockButton then
+                LockButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+                LockButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+            end
+            notify("Target Lost", "Target died or knocked - unlocked", 2)
+            cameraAimbotConfig["Enabled"] = false
+            return nil
+        end
+        
+        -- If not locked, don't return any target (no auto-lock behavior)
+        return nil
+    end
+    
+    local function findClosestPlayerToMouse()
         local bestTarget = nil
         local shortestDist = math.huge
+        local mousePos = UserInputService:GetMouseLocation()
+        
         for _, player in ipairs(Players:GetPlayers()) do
             if player ~= LocalPlayer and player.Character then
-                local part
-                if cameraAimbotConfig["Hit Part"]:lower() == "closest point" then
-                    local function getClosestPart(character)
-                        local bestPart, bestDist = nil, math.huge
-                        local mousePos = UserInputService:GetMouseLocation()
-                        local parts = getCachedBodyParts(character)
-                        for _, p in ipairs(parts) do
-                            local screenPos, onScreen = currentCamera:WorldToViewportPoint(p.Position)
-                            if onScreen and screenPos.Z > 0 then
-                                local dist = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
-                                if dist < bestDist then
-                                    bestDist = dist
-                                    bestPart = p
-                                end
+                if not isKnocked(player.Character) then
+                    local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        local screenPos, onScreen = currentCamera:WorldToViewportPoint(hrp.Position)
+                        if onScreen and screenPos.Z > 0 then
+                            local dist = (Vector2.new(screenPos.X, screenPos.Y) - mousePos).Magnitude
+                            if dist < shortestDist then
+                                shortestDist = dist
+                                bestTarget = hrp
                             end
-                        end
-                        return bestPart
-                    end
-                    part = getClosestPart(player.Character)
-                else
-                    part = player.Character:FindFirstChild("HumanoidRootPart")
-                end
-                
-                if part then
-                    local screenPos, onScreen = currentCamera:WorldToViewportPoint(part.Position)
-                    if onScreen and screenPos.Z > 0 then
-                        local dist = (Vector2.new(screenPos.X, screenPos.Y) - Vector2.new(UserInputService:GetMouseLocation().X, UserInputService:GetMouseLocation().Y)).Magnitude
-                        if dist < shortestDist then
-                            shortestDist = dist
-                            bestTarget = part
                         end
                     end
                 end
             end
         end
+        
         return bestTarget
+    end
+    
+    local function findClosestPlayerToCenter()
+        local bestTarget = nil
+        local shortestDist = math.huge
+        local centerScreen = Vector2.new(currentCamera.ViewportSize.X / 2, currentCamera.ViewportSize.Y / 2)
+        
+        for _, player in ipairs(Players:GetPlayers()) do
+            if player ~= LocalPlayer and player.Character then
+                if not isKnocked(player.Character) then
+                    local hrp = player.Character:FindFirstChild("HumanoidRootPart")
+                    if hrp then
+                        local screenPos, onScreen = currentCamera:WorldToViewportPoint(hrp.Position)
+                        if onScreen and screenPos.Z > 0 then
+                            local dist = (Vector2.new(screenPos.X, screenPos.Y) - centerScreen).Magnitude
+                            if dist < shortestDist then
+                                shortestDist = dist
+                                bestTarget = hrp
+                            end
+                        end
+                    end
+                end
+            end
+        end
+        
+        return bestTarget
+    end
+    
+    -- Lock button logic (only if mobile mode)
+    if isMobileMode and LockButton then
+        print("[Mooze] Setting up mobile lock button click handler")
+        LockButton.MouseButton1Click:Connect(function()
+            if not isLocked then
+                local bestTarget = findClosestPlayerToCenter()
+                
+                if bestTarget then
+                    isLocked = true
+                    lockedTarget = bestTarget
+                    LockButton.BackgroundColor3 = Color3.fromRGB(0, 100, 0)
+                    LockButton.BorderColor3 = Color3.fromRGB(0, 255, 0)
+                    TweenService:Create(LockButton, TweenInfo.new(0.2), {BackgroundColor3 = Color3.fromRGB(0, 150, 0)}):Play()
+                    
+                    local player = Players:GetPlayerFromCharacter(bestTarget.Parent)
+                    if player then
+                        notify("Locked On", player.Name .. " (Mobile Mode)", 3)
+                    end
+                    
+                    cameraAimbotConfig["Enabled"] = true
+                else
+                    notify("No Target", "No valid player found", 2)
+                end
+            else
+                -- Manual unlock
+                isLocked = false
+                lockedTarget = nil
+                cameraAimbotConfig["Enabled"] = false
+                LockButton.BackgroundColor3 = Color3.fromRGB(20, 20, 20)
+                LockButton.BorderColor3 = Color3.fromRGB(255, 0, 0)
+                notify("Unlocked", "Lock disabled", 2)
+            end
+        end)
+    end
+    
+    -- PC Mode: C key toggle lock (closest to mouse)
+    if not isMobileMode then
+        UserInputService.InputBegan:Connect(function(input, processed)
+            if processed then return end
+            if input.KeyCode == aimbotKey then
+                if not isLocked then
+                    local bestTarget = findClosestPlayerToMouse()
+                    
+                    if bestTarget then
+                        isLocked = true
+                        lockedTarget = bestTarget
+                        
+                        local player = Players:GetPlayerFromCharacter(bestTarget.Parent)
+                        if player then
+                            notify("Locked On", player.Name .. " (PC Mode)", 3)
+                        end
+                        
+                        cameraAimbotConfig["Enabled"] = true
+                    else
+                        notify("No Target", "No valid player near mouse", 2)
+                    end
+                else
+                    -- Manual unlock
+                    isLocked = false
+                    lockedTarget = nil
+                    cameraAimbotConfig["Enabled"] = false
+                    notify("Unlocked", "Lock disabled", 2)
+                end
+            end
+        end)
     end
     
     UserInputService.InputBegan:Connect(function(input, processed)
         if processed then return end
         if input.KeyCode == aimbotKey then
-            cameraAimbotConfig["Enabled"] = not cameraAimbotConfig["Enabled"]
-            print("[Camera Aimbot]", cameraAimbotConfig["Enabled"] and "Enabled" or "Disabled")
-            notify("Camera Aimbot", cameraAimbotConfig["Enabled"] and "Enabled" or "Disabled", 3)
+            if isMobileMode then
+                -- Mobile mode already handled by button
+                return
+            end
         end
     end)
     
-    local lastAimbotUpdate = 0
-    local aimbotUpdateInterval = 0.033
-    
-    RunService.Heartbeat:Connect(function(delta)
-        lastAimbotUpdate = lastAimbotUpdate + delta
-        
-        if cameraAimbotConfig["Enabled"] and lastAimbotUpdate >= aimbotUpdateInterval then
-            lastAimbotUpdate = 0
+    RunService.RenderStepped:Connect(function()
+        if cameraAimbotConfig["Enabled"] then
             local targetPart = getTarget()
             if targetPart then
-                local pred = Vector3.new(
-                    cameraAimbotConfig["Prediction"]["X"],
-                    cameraAimbotConfig["Prediction"]["Y"],
-                    cameraAimbotConfig["Prediction"]["Z"]
-                )
-                local targetPos = targetPart.Position + pred
-                local newCFrame = CFrame.new(currentCamera.CFrame.Position, targetPos)
-                currentCamera.CFrame = currentCamera.CFrame:Lerp(newCFrame, cameraAimbotConfig["Snappiness"])
+                local targetPos = targetPart.Position
+                currentCamera.CFrame = CFrame.new(currentCamera.CFrame.Position, targetPos)
             end
         end
     end)
