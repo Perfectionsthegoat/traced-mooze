@@ -1532,7 +1532,7 @@ do
     end)
 end
 
--- Silent Aimbot
+-- Silent Aimbot (FIXED FOR MOBILE/SHIFTLOCK)
 do
     local _0xSACFG = getgenv().Mooze["Silent Aimbot"]
     local _0xLP = _0xPLRS.LocalPlayer
@@ -1572,6 +1572,21 @@ do
     local _0xFUI = 0.033
     
     local function _0xISSL()
+        if _0xLP.Character then
+            local tool = _0xLP.Character:FindFirstChildOfClass("Tool")
+            if tool and tool:FindFirstChild("Ammo") then
+                return true
+            end
+        end
+        
+        local pg = _0xLP:FindFirstChildOfClass("PlayerGui")
+        if pg then
+            local ag = pg:FindFirstChild("Aim")
+            if ag and ag.Visible then
+                return true
+            end
+        end
+        
         local m = _0xLP:GetMouse()
         if m.Icon == "rbxasset://SystemCursors/Cross" then
             return true
@@ -1706,7 +1721,7 @@ do
         end)
         
         if s then
-            print("[Silent Aimbot] Metatable hooking enabled")
+            print("[Silent Aimbot] Metatable hooking enabled with shiftlock fix")
         else
             warn("[Silent Aimbot] Metatable hooking failed, using basic mode")
             _0xNOTIFY("Silent Aimbot", "Running in basic mode", 5)
@@ -1895,5 +1910,6 @@ end
 print("[Mooze] Script loaded successfully!")
 print("[Mooze] Executor:", _0xEXE)
 print("[Mooze] Features:", _0xCAP[5] and "Full" or "Limited")
-_0xNOTIFY("Mooze Ready", "All features loaded successfully!", 4)
-_0xNOTIFY("Performance", "Optimized for 30+ FPS", 4)
+print("[Mooze] Mobile Shiftlock Fix: ENABLED")
+_0xNOTIFY("Mooze Ready", "All features loaded!", 4)
+_0xNOTIFY("Shiftlock Fixed", "Silent aim works in ADS!", 4)
