@@ -80,12 +80,12 @@ local function _0xNOTIFY(t, m, d)
     end)
 end
 
-print("[Mooze] Running on:", _0xEXE)
-print("[Mooze] Hooking:", _0xCAP[1] and "✓" or "✗")
-print("[Mooze] Metatable:", _0xCAP[5] and "✓" or "✗")
+print("[Comet] Running on:", _0xEXE)
+print("[Comet] Hooking:", _0xCAP[1] and "✓" or "✗")
+print("[Comet] Metatable:", _0xCAP[5] and "✓" or "✗")
 
 task.delay(1, function()
-    _0xNOTIFY("Mooze Loaded", "Running on: " .. _0xEXE, 4)
+    _0xNOTIFY("Comet Loaded", "Running on: " .. _0xEXE, 4)
 end)
 
 -- Config Presets
@@ -139,7 +139,7 @@ local _0xPRESET = {
 getgenv().Mooze = {
     Global = {
         Enabled = true,
-        Keybind = "C"
+        Keybind = "Q"
     },
     ["Trigger Bot"] = {
         Enabled = false,
@@ -168,7 +168,7 @@ getgenv().Mooze = {
     },
     ["Camera Aimbot"] = {
         Enabled = false,
-        Keybind = "C",
+        Keybind = "Q",
         ["Hit Part"] = "HumanoidRootPart",
         Prediction = {
             X = 0,
@@ -271,7 +271,7 @@ getgenv().Mooze = {
 
 -- AC Bypass
 if _0xCAP[1] and _0xCAP[2] and _0xCAP[3] then
-    print("[Mooze] Initializing AC bypass...")
+    print("[Comet] Initializing AC bypass...")
     
     local _0xLOG = _0x2[7]
     local _0xMSG = _0xLOG.MessageOut
@@ -308,7 +308,7 @@ if _0xCAP[1] and _0xCAP[2] and _0xCAP[3] then
             end
         end)
         if not s then
-            warn("[Mooze] AC bypass failed (non-critical):", e)
+            warn("[Comet] AC bypass failed (non-critical):", e)
         end
     end
     
@@ -335,7 +335,7 @@ if _0xCAP[1] and _0xCAP[2] and _0xCAP[3] then
         end
     end)
 else
-    warn("[Mooze] AC bypass disabled - executor doesn't support required functions")
+    warn("[Comet] AC bypass disabled - executor doesn't support required functions")
 end
 
 -- GUI Variables
@@ -386,7 +386,7 @@ local _0xAUTH = false
 _0xGUI.Name = "CST"
 _0xGUI.Parent = _0x2[6]
 
-_0xFRAME.Name = "MoozeFrame"
+_0xFRAME.Name = "CometFrame"
 _0xFRAME.Parent = _0xGUI
 _0xFRAME.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 _0xFRAME.Size = UDim2.new(0, 600, 0, 300)
@@ -413,7 +413,7 @@ _0xTTXT.Parent = _0xTBAR
 _0xTTXT.BackgroundTransparency = 1
 _0xTTXT.Size = UDim2.new(0, 100, 1, 0)
 _0xTTXT.Position = UDim2.new(0, 28, 0, 0)
-_0xTTXT.Text = "Mooze"
+_0xTTXT.Text = "Comet"
 _0xTTXT.Font = Enum.Font.SourceSans
 _0xTTXT.TextColor3 = Color3.fromRGB(255, 255, 255)
 _0xTTXT.TextSize = 18
@@ -541,20 +541,20 @@ _0xCLOSE.MouseButton1Click:Connect(function()
     _0xGUI:Destroy()
 end)
 
-_0xASCII.Name = "MoozeASCII"
+_0xASCII.Name = "CometASCII"
 _0xASCII.Parent = _0xFRAME
 _0xASCII.BackgroundTransparency = 1
 _0xASCII.Size = UDim2.new(1, 0, 0.6, 0)
 _0xASCII.Position = UDim2.new(0, 0, 0.12, 0)
 _0xASCII.Font = Enum.Font.Code
 _0xASCII.Text = [[
-ooo        ooooo     .oooooo.      .oooooo.      oooooooooooo   oooooooooooo
-`88.       .888'    d8P'  `Y8b    d8P'  `Y8b    d'''""""'888'        `888'     
- 888b     d'888    888      888  888      888         .888P         888       
- 8 Y88. .P  888    888      888  888      888        d888'          888oooo8  
- 8  `888'   888    888      888  888      888      .888P            888    "  
- 8    Y     888    `88b    d88'  `88b    d88'     d888'    .P       888       
-o8o        o888o    `Y8bood8P'    `Y8bood8P'    .8888888888P      o888ooooood8
+  .oooooo.     .oooooo.     ooo        ooooo  oooooooooooo  ooooooooooooo
+ d8P'  `Y8b   d8P'  `Y8b    `88.       .888'  `888'     `8  8'   888   `8
+888          888      888    888b     d'888    888               888      
+888          888      888    8 Y88. .P  888    888oooo8          888      
+888          888      888    8  `888'   888    888    "          888      
+`88b    ooo  `88b    d88'    8   `Y'    888    888       o       888      
+ `Y8bood8P'   `Y8bood8P'    o8o        o888o  o888ooooood8      o888o
 ]]
 _0xASCII.TextColor3 = Color3.fromRGB(128, 128, 128)
 _0xASCII.TextSize = 12
@@ -608,7 +608,7 @@ end
 
 _0xMBTN.MouseButton1Click:Connect(function()
     _0xMOBILE = true
-    print("[Mooze] Mobile Mode button clicked - isMobileMode set to TRUE")
+    print("[Comet] Mobile Mode button clicked - isMobileMode set to TRUE")
     _0xPROCEED()
 end)
 
@@ -630,7 +630,7 @@ _0xUIS.InputBegan:Connect(function(i, g)
             _0xHUM.JumpPower = _0xOJP
             if _0xTYPED == _0xCORRECT then
                 _0xMOBILE = false
-                print("[Mooze] PC Mode (typed key) - isMobileMode set to FALSE")
+                print("[Comet] PC Mode (typed key) - isMobileMode set to FALSE")
                 _0xPROCEED()
             else
                 _0xPLR:Kick("Invalid Key")
@@ -991,9 +991,9 @@ function applyConfig(p, e)
         end
     end
     
-    print("[Mooze] Applied config:", p)
-    print("[Mooze] Walkspeed enabled:", e)
-    print("[Mooze] Speed multiplier:", getgenv().Mooze["Movement Modifications"]["Speed Modifications"]["Normal"]["Multiplier"])
+    print("[Comet] Applied config:", p)
+    print("[Comet] Walkspeed enabled:", e)
+    print("[Comet] Speed multiplier:", getgenv().Mooze["Movement Modifications"]["Speed Modifications"]["Normal"]["Multiplier"])
 end
 
 function finishAuthentication()
@@ -1045,7 +1045,7 @@ if not getgenv().Mooze or not getgenv().Mooze["Global"] or not getgenv().Mooze["
     return
 end
 
-print("[Mooze] Mobile Mode:", _0xMOBILE)
+print("[Comet] Mobile Mode:", _0xMOBILE)
 
 -- Mobile Lock & FOV
 local _0xLOCKED = false
@@ -1064,7 +1064,7 @@ if _0xMOBILE then
     _0xMFOV.Filled = false
     
     local lg = Instance.new("ScreenGui")
-    lg.Name = "MoozeLockGui"
+    lg.Name = "CometLockGui"
     lg.Parent = _0x2[6]
     lg.ResetOnSpawn = false
 
@@ -1187,7 +1187,7 @@ if _0xMOBILE then
         end
     end)
     
-    print("[Mooze] Mobile lock button and FOV slider created!")
+    print("[Comet] Mobile lock button and FOV slider created!")
 end
 
 -- Target System
@@ -1907,9 +1907,9 @@ else
     print("[Walkspeed] Disabled by config")
 end
 
-print("[Mooze] Script loaded successfully!")
-print("[Mooze] Executor:", _0xEXE)
-print("[Mooze] Features:", _0xCAP[5] and "Full" or "Limited")
-print("[Mooze] Mobile Shiftlock Fix: ENABLED")
-_0xNOTIFY("Mooze Ready", "All features loaded!", 4)
+print("[Comet] Script loaded successfully!")
+print("[Comet] Executor:", _0xEXE)
+print("[Comet] Features:", _0xCAP[5] and "Full" or "Limited")
+print("[Comet] Mobile Shiftlock Fix: ENABLED")
+_0xNOTIFY("Comet Ready", "All features loaded!", 4)
 _0xNOTIFY("Shiftlock Fixed", "Silent aim works in ADS!", 4)
