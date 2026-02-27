@@ -1,4 +1,4 @@
--- this isnt obfuscated, its a community script made by /traced (if you larp this ur  a loser)
+-- this isnt obfuscated, its a community script made by /traced (if you larp this ur a loser)
 if not LPH_OBFUSCATED then 
     LPH_NO_VIRTUALIZE = function (...) return ... end
     end
